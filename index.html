@@ -1,0 +1,950 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>22 000 ans de nombres</title>
+<meta name="description" content="Frise interactive de l'histoire des nombres, de l'os d'Ishango aux médailles Fields 2026 : mathématiciennes et mathématiciens d'Afrique, d'Asie, d'Europe et des Amériques, avec un défi à chaque étape.">
+<meta name="theme-color" content="#0a0d1f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
+<style>
+/* Concept : un voyage de nuit à travers 22 000 ans. Fond encre profonde, chaque époque a sa couleur
+   (argile, or, turquoise des zelliges, vermillon, lavande, bleu électrique, magenta) qui teinte la page
+   à mesure qu'on avance. Frise en zigzag autour d'un fil lumineux ; compteur d'années en direct. */
+@property --era { syntax: "<color>"; inherits: true; initial-value: #e39b5b; }
+:root {
+  --night: #0a0d1f;
+  --night-2: #11152c;
+  --panel: rgba(255, 255, 255, 0.045);
+  --panel-line: rgba(255, 255, 255, 0.10);
+  --text: #eef0fa;
+  --muted: #a7acc9;
+  --faint: #6f7596;
+  --paper: #efe8da;
+  --era: #e39b5b;
+  --display: "Bricolage Grotesque", "Arial Black", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color-scheme: dark;
+  transition: --era 0.8s ease;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--night); color: var(--text); font-family: var(--body); font-size: 17px; line-height: 1.6; overflow-x: hidden; }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(60vw 50vh at 85% 0%, color-mix(in srgb, var(--era) 22%, transparent), transparent 70%),
+    radial-gradient(50vw 50vh at 0% 100%, color-mix(in srgb, var(--era) 12%, transparent), transparent 70%); }
+img { max-width: 100%; display: block; }
+button { font: inherit; color: inherit; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--era); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; position: relative; z-index: 1; }
+
+/* ---------- Hero ---------- */
+.hero { position: relative; overflow: hidden; padding-block: 72px 56px; isolation: isolate; }
+.hero::after { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .5;
+  background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 44px 44px; mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%); }
+.floaters { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
+.floaters span { position: absolute; font-family: var(--display); font-weight: 800; color: rgba(255,255,255,.06); animation: drift 18s ease-in-out infinite alternate; }
+@keyframes drift { from { transform: translateY(0) rotate(-4deg); } to { transform: translateY(-28px) rotate(5deg); } }
+.eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.eyebrow i { width: 34px; height: 2px; background: var(--era); display: block; }
+.counter { font-family: var(--display); font-weight: 800; font-size: clamp(76px, 17vw, 230px); line-height: .82; letter-spacing: -0.055em;
+  font-variant-numeric: tabular-nums; margin: 22px 0 10px; color: transparent; -webkit-text-stroke: 2px var(--era);
+  background: linear-gradient(180deg, var(--era) 0%, color-mix(in srgb, var(--era) 30%, transparent) 100%); -webkit-background-clip: text; background-clip: text; white-space: nowrap; }
+.hero h1 { font-family: var(--display); font-weight: 800; font-size: clamp(36px, 6vw, 76px); line-height: .98; letter-spacing: -0.035em; margin: 0; max-width: 15ch; text-wrap: balance; }
+.hero h1 em { font-style: normal; color: var(--era); }
+.lede { margin: 18px 0 0; max-width: 58ch; font-size: clamp(17px, 1.6vw, 20px); color: var(--muted); }
+.cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+.btn { border: 0; border-radius: 999px; padding: 14px 22px; font-weight: 700; font-size: 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; text-decoration: none; transition: transform .2s, background .2s; }
+.btn:hover { transform: translateY(-2px); }
+.btn-main { background: var(--era); color: #0a0d1f; box-shadow: 0 10px 40px -10px var(--era); }
+.btn-soft { background: rgba(255,255,255,.08); border: 1px solid var(--panel-line); }
+.stats { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 40px; }
+.stat { border: 1px solid var(--panel-line); background: var(--panel); border-radius: 14px; padding: 10px 16px; cursor: pointer; text-align: left; transition: border-color .2s, transform .2s; }
+.stat:hover { border-color: var(--era); transform: translateY(-2px); }
+.stat b { display: block; font-family: var(--display); font-size: 28px; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 13px; color: var(--muted); font-weight: 600; }
+.stat.static { cursor: default; }
+.stat.static:hover { transform: none; border-color: var(--panel-line); }
+
+/* ---------- HUD ---------- */
+.hud { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: color-mix(in srgb, var(--night) 82%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); border-bottom: 1px solid var(--panel-line); }
+.hud-bar { position: absolute; left: 0; bottom: -1px; height: 3px; width: 0; background: var(--era); box-shadow: 0 0 14px var(--era); transition: width .15s linear; }
+.hud-in { display: flex; align-items: center; gap: 14px; padding-block: 10px; justify-content: space-between; flex-wrap: wrap; }
+.now { display: flex; align-items: baseline; gap: 10px; min-width: 0; }
+.now b { font-family: var(--display); font-size: 26px; font-weight: 800; letter-spacing: -0.03em; color: var(--era); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.now span { font-size: 13px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.hbtn { border: 1px solid var(--panel-line); background: var(--panel); border-radius: 999px; padding: 8px 14px; font-size: 14px; font-weight: 700; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+.hbtn:hover, .hbtn[aria-expanded="true"] { border-color: var(--era); }
+.score { border-color: color-mix(in srgb, var(--era) 60%, transparent); }
+.score b { color: var(--era); font-variant-numeric: tabular-nums; }
+.filters { border-top: 1px solid var(--panel-line); padding-block: 12px; display: flex; flex-wrap: wrap; gap: 14px 28px; }
+.fgroup { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.fgroup > span { font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin-right: 4px; }
+.chip { border: 1px solid var(--panel-line); background: transparent; border-radius: 999px; padding: 6px 13px; font-size: 14px; font-weight: 600; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--text); color: var(--night); border-color: var(--text); }
+.fcount { font-size: 13px; color: var(--muted); align-self: center; }
+
+/* ---------- Époques ---------- */
+.era-head { padding-block: 96px 40px; text-align: center; position: relative; }
+.era-head .num { font-family: var(--display); font-weight: 800; font-size: clamp(90px, 16vw, 200px); line-height: .8; letter-spacing: -0.06em; color: transparent; -webkit-text-stroke: 1.5px color-mix(in srgb, var(--c) 45%, transparent); display: block; }
+.era-head h2 { font-family: var(--display); font-weight: 800; font-size: clamp(40px, 6.5vw, 84px); line-height: .95; letter-spacing: -0.04em; margin: -0.42em 0 0; color: var(--c); text-wrap: balance; position: relative; }
+.era-head .span { display: inline-block; margin-top: 14px; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.era-head p { margin: 12px auto 0; max-width: 54ch; color: var(--muted); font-size: 18px; }
+
+/* ---------- Frise ---------- */
+.line { position: relative; }
+.line::before { content: ""; position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; transform: translateX(-1px);
+  background: linear-gradient(180deg, transparent, var(--c) 6%, var(--c) 94%, transparent); opacity: .45; }
+.ev { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 88px; padding-bottom: 56px; position: relative; scroll-margin-top: 90px; }
+.ev .dot { position: absolute; left: 50%; top: 34px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; background: var(--night); border: 3px solid var(--c); box-shadow: 0 0 0 6px color-mix(in srgb, var(--c) 18%, transparent), 0 0 22px var(--c); z-index: 2; }
+.ev .yr { align-self: start; padding-top: 6px; }
+.ev.l .card { grid-column: 1; grid-row: 1; }
+.ev.l .yr { grid-column: 2; grid-row: 1; text-align: left; }
+.ev.r .card { grid-column: 2; grid-row: 1; }
+.ev.r .yr { grid-column: 1; grid-row: 1; text-align: right; }
+.yr small { display: block; font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.yr strong { display: block; font-family: var(--display); font-weight: 800; font-size: clamp(48px, 6vw, 92px); line-height: .9; letter-spacing: -0.05em; color: var(--c); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.yr .place { margin-top: 10px; font-size: 15px; font-weight: 600; color: var(--muted); display: inline-flex; gap: 6px; align-items: center; }
+.ev.r .yr .place { flex-direction: row-reverse; }
+
+.card { background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.025)); border: 1px solid var(--panel-line); border-radius: 26px; overflow: hidden; min-width: 0;
+  box-shadow: 0 30px 60px -30px rgba(0,0,0,.7); transition: transform .5s cubic-bezier(.2,.8,.2,1), border-color .3s, box-shadow .3s; }
+.card:hover { border-color: color-mix(in srgb, var(--c) 70%, transparent); box-shadow: 0 30px 80px -30px color-mix(in srgb, var(--c) 45%, transparent); }
+.js .ev:not(.in) .card { transform: translateY(40px) scale(.98); }
+.ev.flash .card { border-color: var(--c); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 40%, transparent), 0 30px 80px -30px var(--c); }
+
+.media { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: color-mix(in srgb, var(--c) 18%, var(--night-2)); }
+.media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; transition: transform .8s cubic-bezier(.2,.8,.2,1); }
+.media.fit { background: var(--paper); }
+.media.fit img { object-fit: contain; padding: 18px; }
+.card:hover .media img { transform: scale(1.04); }
+.media::after { content: ""; position: absolute; inset: auto 0 0 0; height: 45%; background: linear-gradient(0deg, rgba(10,13,31,.75), transparent); pointer-events: none; }
+.media.fit::after { height: 30%; background: linear-gradient(0deg, rgba(10,13,31,.35), transparent); }
+.badge-y { position: absolute; left: 16px; top: 16px; z-index: 2; background: var(--c); color: #0a0d1f; font-family: var(--display); font-weight: 800; font-size: 15px; padding: 5px 12px; border-radius: 999px; }
+.conts { position: absolute; right: 14px; top: 14px; z-index: 2; display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.conts span { background: rgba(10,13,31,.72); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,.18); font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px; }
+.credit { position: absolute; right: 12px; bottom: 8px; z-index: 2; font-size: 11px; color: rgba(255,255,255,.7); text-decoration: none; }
+.credit:hover { text-decoration: underline; }
+.media.fit .credit { color: rgba(255,255,255,.85); }
+
+.ph { position: absolute; inset: 0; display: grid; place-items: center; text-align: center;
+  background:
+    linear-gradient(color-mix(in srgb, var(--c) 18%, transparent) 1px, transparent 1px) 0 0 / 28px 28px,
+    linear-gradient(90deg, color-mix(in srgb, var(--c) 18%, transparent) 1px, transparent 1px) 0 0 / 28px 28px,
+    radial-gradient(circle at 30% 20%, color-mix(in srgb, var(--c) 45%, var(--night-2)), var(--night-2) 75%); }
+.ph b { font-family: var(--display); font-weight: 800; font-size: clamp(56px, 8vw, 110px); line-height: 1; letter-spacing: -0.04em; color: var(--c); text-shadow: 0 0 40px color-mix(in srgb, var(--c) 60%, transparent); padding: 0 16px; }
+
+.ph.art { color: var(--c); }
+.ph.art svg { width: 88%; height: 88%; overflow: visible; filter: drop-shadow(0 0 18px color-mix(in srgb, var(--c) 45%, transparent)); }
+.content { padding: 24px 26px 26px; display: grid; gap: 14px; }
+.place-m { display: none; font-size: 14px; font-weight: 600; color: var(--muted); }
+.content h3 { font-family: var(--display); font-weight: 800; font-size: clamp(26px, 2.6vw, 34px); line-height: 1.02; letter-spacing: -0.03em; margin: 0; text-wrap: balance; }
+.lv { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.lv span { font-size: 12px; font-weight: 700; border-radius: 6px; padding: 3px 8px; background: rgba(255,255,255,.08); color: var(--muted); }
+.lv span.t { background: color-mix(in srgb, var(--c) 20%, transparent); color: var(--c); letter-spacing: .04em; text-transform: uppercase; }
+.content p { margin: 0; color: #d6d9ea; }
+.content p strong, .content p b { color: var(--text); font-weight: 700; }
+.cours { font-size: 15px; color: var(--muted); border-left: 3px solid var(--c); padding: 2px 0 2px 12px; }
+.cours strong { color: var(--text); }
+
+.defi { border-radius: 18px; padding: 16px 18px; background: color-mix(in srgb, var(--c) 13%, rgba(255,255,255,.02)); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); display: grid; gap: 12px; }
+.defi-q { font-weight: 600; }
+.defi-q i { font-style: normal; font-family: var(--display); font-weight: 800; color: var(--night); background: var(--c); border-radius: 6px; padding: 1px 8px; margin-right: 8px; font-size: 14px; letter-spacing: .05em; }
+.defi .acts { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.dbtn { border: 0; background: var(--c); color: #0a0d1f; font-weight: 800; border-radius: 999px; padding: 9px 16px; cursor: pointer; font-size: 14px; }
+.dbtn.ghost { background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,.25); }
+.dbtn:disabled { opacity: .5; cursor: default; }
+.rep { border-top: 1px dashed color-mix(in srgb, var(--c) 50%, transparent); padding-top: 12px; display: grid; gap: 10px; }
+.rep p { color: var(--text); }
+.ask { font-size: 14px; color: var(--muted); }
+.won { font-size: 14px; font-weight: 700; color: var(--c); }
+.tools { display: flex; justify-content: flex-end; gap: 8px; }
+.tool { background: transparent; border: 1px solid var(--panel-line); color: var(--muted); border-radius: 999px; padding: 6px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+.tool:hover { color: var(--text); border-color: var(--c); }
+
+/* ---------- Fin ---------- */
+.finale { text-align: center; padding-block: 120px 80px; }
+.finale .big { font-family: var(--display); font-weight: 800; font-size: clamp(70px, 14vw, 190px); line-height: .85; letter-spacing: -0.06em; color: transparent; -webkit-text-stroke: 2px var(--era); }
+.finale h2 { font-family: var(--display); font-weight: 800; font-size: clamp(34px, 5vw, 64px); letter-spacing: -0.035em; line-height: 1; margin: 14px 0 0; text-wrap: balance; }
+.finale p { max-width: 52ch; margin: 18px auto 0; color: var(--muted); font-size: 19px; }
+.finale .cta { justify-content: center; }
+.rank { display: inline-block; margin-top: 26px; border: 1px solid var(--era); border-radius: 18px; padding: 14px 22px; }
+.rank b { font-family: var(--display); font-size: 30px; color: var(--era); display: block; line-height: 1.1; }
+.rank span { color: var(--muted); font-size: 15px; }
+footer { border-top: 1px solid var(--panel-line); color: var(--faint); font-size: 14px; position: relative; z-index: 1; }
+footer .wrap { padding-block: 28px 48px; display: grid; gap: 6px; }
+
+/* ---------- Toast ---------- */
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translate(-50%, 20px); z-index: 60; background: var(--era); color: #0a0d1f;
+  font-weight: 800; padding: 12px 20px; border-radius: 999px; opacity: 0; pointer-events: none; transition: opacity .3s, transform .3s; box-shadow: 0 16px 40px -10px var(--era); text-align: center; max-width: calc(100vw - 32px); }
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* ---------- Projection ---------- */
+.proj { position: fixed; inset: 0; z-index: 100; background: var(--night); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.proj::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(70vw 70vh at 100% 0%, color-mix(in srgb, var(--c) 28%, transparent), transparent 70%); }
+.p-top, .p-bot { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 28px; }
+.p-count { font-weight: 700; color: var(--muted); font-variant-numeric: tabular-nums; }
+.p-hint { font-size: 13px; color: var(--faint); }
+.p-stage { position: relative; display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 48px; align-items: center; padding: 0 56px; overflow: auto; }
+.p-media { position: relative; height: min(64vh, 600px); border-radius: 24px; overflow: hidden; background: color-mix(in srgb, var(--c) 18%, var(--night-2)); }
+.p-media img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 22%; }
+.p-media.fit { background: var(--paper); }
+.p-media.fit img { object-fit: contain; padding: 22px; }
+.p-text { display: grid; gap: 18px; font-size: clamp(19px, 1.7vw, 25px); line-height: 1.5; min-width: 0; }
+.p-year { font-family: var(--display); font-weight: 800; font-size: clamp(56px, 7.5vw, 120px); line-height: .85; letter-spacing: -0.05em; color: var(--c); }
+.p-year small { font-size: .3em; letter-spacing: 0; color: var(--muted); margin-left: 10px; }
+.p-text h3 { font-family: var(--display); font-weight: 800; margin: 0; font-size: clamp(30px, 3vw, 46px); line-height: 1; letter-spacing: -0.03em; }
+.p-text p { margin: 0; max-width: 60ch; color: #d6d9ea; }
+.p-defi { background: var(--c); color: #0a0d1f; border-radius: 18px; padding: 16px 20px; font-weight: 600; }
+.p-defi .rep { border-top-color: rgba(10,13,31,.35); margin-top: 10px; }
+.p-defi .rep p { color: #0a0d1f; }
+.p-nav { display: flex; gap: 10px; }
+.p-btn { border: 0; background: var(--c); color: #0a0d1f; font-weight: 800; border-radius: 999px; padding: 12px 20px; cursor: pointer; }
+.p-btn.ghost { background: rgba(255,255,255,.08); color: var(--text); border: 1px solid var(--panel-line); }
+.p-btn:disabled { opacity: .3; cursor: default; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 980px) {
+  .line::before { left: 9px; }
+  .ev { grid-template-columns: minmax(0, 1fr); padding-left: 34px; gap: 0; padding-bottom: 40px; }
+  .ev .dot { left: 9px; top: 30px; }
+  .ev .yr { display: none; }
+  .ev.l .card, .ev.r .card { grid-column: 1; }
+  .place-m { display: block; }
+  .era-head { padding-block: 72px 28px; }
+  .p-stage { grid-template-columns: minmax(0, 1fr); padding: 0 20px 24px; gap: 22px; align-items: start; }
+  .p-media { height: 34vh; }
+  .p-hint { display: none; }
+  .p-top, .p-bot { padding: 12px 16px; }
+}
+@media (max-width: 560px) {
+  body { font-size: 16px; }
+  .hero { padding-block: 48px 40px; }
+  .content { padding: 20px 18px 20px; }
+  .now b { font-size: 21px; }
+  .hbtn { padding: 7px 11px; font-size: 13px; }
+  .hbtn .lbl { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  :root { transition: none; }
+  .floaters span { animation: none; }
+  .js .ev:not(.in) .card { transform: none; }
+  .card, .media img, .btn, .stat { transition: none; }
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="floaters" aria-hidden="true">
+    <span style="left:6%;top:12%;font-size:110px">π</span>
+    <span style="right:8%;top:6%;font-size:150px;animation-delay:-4s">∞</span>
+    <span style="left:44%;bottom:6%;font-size:90px;animation-delay:-8s">√2</span>
+    <span style="right:24%;bottom:14%;font-size:120px;animation-delay:-2s">Σ</span>
+    <span style="left:70%;top:38%;font-size:80px;animation-delay:-10s">x²</span>
+    <span style="left:18%;bottom:20%;font-size:70px;animation-delay:-6s">0</span>
+  </div>
+  <div class="wrap">
+    <div class="eyebrow"><i></i>Frise interactive · de la 6e à la 3e</div>
+    <div class="counter" id="counter" aria-hidden="true">−20 000</div>
+    <h1>22 000 ans de <em>génies des nombres</em></h1>
+    <p class="lede">De l'os d'Ishango, gravé au Congo, aux médailles Fields de 2026 : des savantes et des savants d'Afrique, d'Algérie, d'Asie, d'Europe et des Amériques. Chaque étape cache un défi. Combien en relèveras-tu ?</p>
+    <div class="cta">
+      <a class="btn btn-main" href="#voyage">Commencer le voyage ↓</a>
+      <button class="btn btn-soft" type="button" data-surprise>Étape surprise</button>
+      <button class="btn btn-soft" type="button" data-proj-start>Mode projection</button>
+    </div>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+
+<div class="hud" id="hud">
+  <div class="wrap">
+    <div class="hud-in">
+      <div class="now" aria-live="polite"><b id="nowYear">−20 000</b><span id="nowEra">Préhistoire</span></div>
+      <div class="hud-actions">
+        <button class="hbtn" type="button" id="fToggle" aria-expanded="false" aria-controls="filters">Filtres<span class="lbl" id="fBadge"></span></button>
+        <button class="hbtn" type="button" data-surprise>Surprise</button>
+        <button class="hbtn" type="button" data-proj-start>Projeter</button>
+        <span class="hbtn score" id="score" title="Défis relevés">★ <b id="scoreN">0</b><span class="lbl" id="scoreRank">· Novice</span></span>
+      </div>
+    </div>
+    <div class="filters" id="filters" hidden>
+      <div class="fgroup" role="group" aria-label="Niveau"><span>Niveau</span>
+        <button class="chip" data-lv="all" aria-pressed="true" type="button">Tous</button>
+        <button class="chip" data-lv="6" aria-pressed="false" type="button">6e</button>
+        <button class="chip" data-lv="5" aria-pressed="false" type="button">5e</button>
+        <button class="chip" data-lv="4" aria-pressed="false" type="button">4e</button>
+        <button class="chip" data-lv="3" aria-pressed="false" type="button">3e</button>
+      </div>
+      <div class="fgroup" role="group" aria-label="Continent"><span>Continent</span>
+        <button class="chip" data-ct="all" aria-pressed="true" type="button">Tous</button>
+        <button class="chip" data-ct="Afrique" aria-pressed="false" type="button">Afrique</button>
+        <button class="chip" data-ct="Asie" aria-pressed="false" type="button">Asie</button>
+        <button class="chip" data-ct="Europe" aria-pressed="false" type="button">Europe</button>
+        <button class="chip" data-ct="Amériques" aria-pressed="false" type="button">Amériques</button>
+      </div>
+      <span class="fcount" id="fcount"></span>
+    </div>
+  </div>
+  <div class="hud-bar" id="hudBar"></div>
+</div>
+
+<main id="voyage"></main>
+
+<section class="finale wrap" id="finale">
+  <div class="big">2026 → ?</div>
+  <h2>La suite, c'est toi.</h2>
+  <p>Il y a 20 000 ans, quelqu'un gravait des encoches sur un os. Aujourd'hui, des chercheuses et des chercheurs du monde entier continuent l'histoire. La prochaine étape de cette frise sera peut-être écrite par quelqu'un de ta classe.</p>
+  <div class="rank" id="finalRank"><b>Novice</b><span>0 défi relevé</span></div>
+  <div class="cta">
+    <a class="btn btn-main" href="#top" id="backTop">Remonter le temps ↑</a>
+    <button class="btn btn-soft" type="button" data-surprise>Une étape au hasard</button>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <span>Frise réalisée par M. Zeghoudi pour ses élèves de la 6e à la 3e. Les dates de l'Antiquité sont approximatives.</span>
+    <span>Images : Wikimedia Commons. Le lien « Commons » sur chaque image mène à son auteur et à sa licence.</span>
+  </div>
+</footer>
+
+<div class="proj" id="proj" hidden role="dialog" aria-modal="true" aria-label="Mode projection">
+  <div class="p-top"><span class="p-count" id="pCount"></span><span class="p-hint">← → pour naviguer · Espace : réponse · Échap : quitter</span><button class="p-btn ghost" id="pClose" type="button">Quitter ✕</button></div>
+  <div class="p-stage" id="pStage"></div>
+  <div class="p-bot"><button class="p-btn ghost" id="pShow" type="button">Afficher la réponse</button><div class="p-nav"><button class="p-btn" id="pPrev" type="button">← Avant</button><button class="p-btn" id="pNext" type="button">Après →</button></div></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const E = [
+ {y:-20000, v:1, title:"L'os d'Ishango", place:"Ishango · RD Congo", cont:["Afrique"], n:[6], tag:"Nombres entiers", g:"||||", img:"Os d'Ishango IRSNB.JPG", fit:"c",
+  p:["Découvert en 1950 au bord du lac Édouard, cet os de babouin est couvert d'encoches regroupées en colonnes. Il a environ 20 000 ans.",
+     "Une des colonnes porte <b>11, 13, 17 et 19</b> encoches : tous les nombres premiers entre 10 et 20. Hasard ou calcul ? On en débat encore. Une certitude : on comptait déjà en Afrique bien avant l'écriture."],
+  l:"compter, regrouper, les nombres entiers.", j:"quels sont les nombres premiers entre 20 et 30 ?",
+  r:"<b>23 et 29.</b> Les autres ont un diviseur autre que 1 et eux-mêmes : 21 = 3 × 7, 25 = 5 × 5, 27 = 3 × 9…"},
+
+ {y:-1800, v:1, title:"Babylone compte en base 60", place:"Mésopotamie · Irak actuel", cont:["Asie"], n:[6,4], tag:"Durées, angles, racines", g:"60", img:"YBC-7289-OBV-labeled.jpg", fit:"c",
+  p:["Les scribes écrivent sur des tablettes d'argile avec deux symboles seulement : un clou pour 1 et un chevron pour 10. Ils comptent en <b>base 60</b>.",
+     "La tablette YBC 7289 donne une valeur de √2 avec une erreur inférieure à un millionième, il y a près de 4 000 ans."],
+  l:"c'est grâce à eux qu'une heure fait 60 minutes et un tour complet 360°.", j:"combien de secondes dans 2 h 15 min ?",
+  r:"2 h 15 min = 135 min, et 135 × 60 = <b>8 100 secondes</b>."},
+
+ {y:-1650, v:1, title:"Le papyrus Rhind", place:"Égypte", cont:["Afrique"], n:[6,5], tag:"Fractions", g:"½", img:"Rhind Mathematical Papyrus.jpg",
+  p:["Le scribe Ahmès recopie un manuel de plus de 80 problèmes. Les Égyptiens n'utilisent que des fractions de numérateur 1 et décomposent les autres : <b>2/5 = 1/3 + 1/15</b>.",
+     "Pour l'aire d'un disque, ils prennent le carré de côté 8/9 du diamètre. Cela revient à prendre π ≈ 3,16 : pas mal du tout !"],
+  l:"fractions, aire du disque.", j:"vérifie que 2/5 = 1/3 + 1/15 en mettant au même dénominateur.",
+  r:"1/3 = 5/15, donc 1/3 + 1/15 = 6/15. En simplifiant par 3 : <b>6/15 = 2/5</b>."},
+
+ {y:-600, v:1, title:"Thalès mesure la pyramide", place:"Milet · Turquie actuelle", cont:["Asie"], n:[4,3], tag:"Proportionnalité, Thalès", g:"∥", img:"Thales--Vies des savants illustres by louis Figuier Louis.jpg", fit:"c",
+  p:["Selon la légende, Thalès mesure la hauteur de la pyramide de Khéops sans y monter. Il plante un bâton et attend le moment où l'ombre du bâton est égale à sa hauteur.",
+     "À cet instant, <b>l'ombre de la pyramide est égale à sa hauteur</b>. Il n'a plus qu'à la mesurer au sol."],
+  l:"proportionnalité (4e), théorème de Thalès (3e).", j:"un bâton de 1 m a une ombre de 1,5 m. Un arbre a une ombre de 12 m. Quelle est sa hauteur ?",
+  r:"Chaque ombre est 1,5 fois plus longue que l'objet : 12 ÷ 1,5 = <b>8 m</b>."},
+
+ {y:-530, v:1, title:"Pythagore et le secret de √2", place:"Samos (Grèce) · Crotone (Italie)", cont:["Europe"], n:[4], tag:"Pythagore", g:"a²+b²", img:"Kapitolinischer Pythagoras adjusted.jpg",
+  p:["Pythagore fonde une école dont la devise est « Tout est nombre ». La relation qui porte son nom était pourtant connue des Babyloniens mille ans plus tôt.",
+     "Selon une légende, son disciple Hippase découvre que <b>√2 ne peut pas s'écrire comme une fraction d'entiers</b>. Cela contredit la devise de l'école, et la découverte aurait été cachée."],
+  l:"théorème de Pythagore, racine carrée.", j:"un triangle de côtés 3, 4 et 5 est-il rectangle ?",
+  r:"3² + 4² = 9 + 16 = 25 = 5². D'après la réciproque du théorème de Pythagore, <b>il est rectangle</b>."},
+
+ {y:-300, v:1, title:"Euclide écrit les Éléments", place:"Alexandrie · Égypte", cont:["Afrique"], n:[5,3], tag:"Nombres premiers", g:"∞", img:"P. Oxy. I 29.jpg", fit:"c",
+  p:["À Alexandrie, grande ville d'Égypte et donc d'Afrique, Euclide rassemble les mathématiques de son temps en 13 livres. Les <b>Éléments</b> serviront à enseigner pendant plus de 2 000 ans.",
+     "On y trouve une démonstration courte et géniale : <b>il existe une infinité de nombres premiers</b>."],
+  l:"multiples, diviseurs, nombres premiers, démonstration.", j:"2 × 3 × 5 + 1 = 31. Ce nombre est-il premier ?",
+  r:"<b>Oui.</b> 31 n'est divisible ni par 2, ni par 3, ni par 5, et 6 × 6 = 36 dépasse 31 : inutile de tester plus loin."},
+
+ {y:-250, v:1, title:"Archimède encadre π", place:"Syracuse · Sicile", cont:["Europe"], n:[6,5], tag:"Cercle et π", g:"π", img:"Archimedes pi.svg", fit:"c",
+  p:["Archimède enferme un cercle entre deux polygones à 96 côtés, l'un dedans, l'autre dehors. Leurs périmètres prouvent que π est compris entre 3 + 10/71 et 3 + 1/7.",
+     "La valeur <b>22/7 ≈ 3,14</b> vient de lui. Elle a servi pendant des siècles."],
+  l:"périmètre du cercle, encadrement, fractions.", j:"donne 22/7 à 0,001 près et compare avec la touche π de ta calculatrice.",
+  r:"22/7 ≈ <b>3,143</b> et π ≈ <b>3,142</b> : un écart d'environ 0,001 seulement."},
+
+ {y:-240, v:1, title:"Ératosthène mesure la Terre", place:"Né à Cyrène (Libye) · Alexandrie (Égypte)", cont:["Afrique"], n:[5,3], tag:"Nombres premiers, angles", g:"7°", img:"Sieve of Eratosthenes animation.gif", fit:"c",
+  p:["Pour trouver les nombres premiers, Ératosthène barre les multiples de 2, puis de 3, de 5… Ce qui reste est premier : c'est le <b>crible d'Ératosthène</b>.",
+     "Avec des ombres, il mesure aussi le tour de la Terre. À midi, le Soleil est à la verticale à Syène mais fait un angle d'environ 7° à Alexandrie. Par proportionnalité, il trouve une valeur étonnamment juste."],
+  l:"nombres premiers, angles, proportionnalité.", j:"fais le crible jusqu'à 50. Combien trouves-tu de nombres premiers ?",
+  r:"<b>15</b> : 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47."},
+
+ {y:-200, y2:100, title:"Les Neuf Chapitres", place:"Chine", cont:["Asie"], n:[5], tag:"Nombres relatifs", g:"−", img:"Replica of Han Dynasty Counting rods in National Museum of Natural Science in Taiwan.JPG",
+  p:["Un grand manuel chinois rassemble 246 problèmes. On calcule avec des baguettes posées sur une table : <b>rouges pour les positifs, noires pour les négatifs</b>.",
+     "Le livre donne déjà les règles pour additionner et soustraire ces nombres, plus de mille ans avant que l'Europe ne les accepte."],
+  l:"nombres relatifs, addition et soustraction.", j:"3 baguettes rouges et 5 noires : quel nombre représentent-elles ?",
+  r:"(+3) + (−5) = <b>−2</b>. Plus de noires que de rouges, donc le résultat est négatif."},
+
+ {y:250, v:1, title:"Diophante, l'énigme d'une vie", place:"Alexandrie · Égypte", cont:["Afrique"], n:[4,3], tag:"Équations", g:"x", img:"Diophantus-cover.jpg", fit:"c",
+  p:["Dans ses <i>Arithmétiques</i>, Diophante résout des problèmes en notant l'inconnue par une abréviation : un premier pas vers les lettres de l'algèbre.",
+     "Une énigme célèbre raconte sa vie en fractions : enfance 1/6 de sa vie, jeunesse 1/12, mariage après 1/7 de plus. Un fils naît 5 ans après, vit la moitié de l'âge de son père, et Diophante meurt 4 ans après lui."],
+  l:"mettre un problème en équation, fractions.", j:"à quel âge Diophante est-il mort ?",
+  r:"x/6 + x/12 + x/7 + 5 + x/2 + 4 = x. Au dénominateur 84 : 75x/84 + 9 = x, donc 9x/84 = 9 et <b>x = 84 ans</b>."},
+
+ {y:350, v:1, title:"Les Mayas inventent leur zéro", place:"Mexique · Guatemala", cont:["Amériques"], n:[6], tag:"Numération", g:"0", img:"Mayan numerals 0-19 & 2 vertical examples.gif", fit:"c",
+  p:["De l'autre côté de l'Atlantique, sans aucun contact avec l'Europe ou l'Asie, les Mayas comptent en <b>base 20</b> avec trois symboles : un point pour 1, une barre pour 5 et un coquillage pour 0.",
+     "Ils ont inventé le zéro de position par eux-mêmes, pour leurs calendriers et leurs calculs astronomiques."],
+  l:"numération de position, bases.", j:"en maya, 3 barres et 4 points : quel nombre ?",
+  r:"3 × 5 + 4 = <b>19</b>."},
+
+ {y:400, v:1, title:"Hypatie d'Alexandrie", place:"Alexandrie · Égypte", cont:["Afrique"], n:[6,5,4,3], tag:"Histoire des sciences", g:"♀", img:"HypatiaGaspardMirrorCopy.jpg",
+  p:["Hypatie est <b>la première femme mathématicienne</b> dont l'histoire a gardé une trace précise. Elle enseigne les mathématiques, l'astronomie et la philosophie.",
+     "Admirée de ses élèves, elle est la cible de conflits politiques et religieux. Elle meurt assassinée en 415."],
+  l:"histoire des sciences, place des femmes en mathématiques.", j:"combien de femmes de science comptes-tu sur cette frise ?",
+  r:"<b>9</b> : Hypatie, Sophie Germain, Ada Lovelace, Florence Nightingale, Katherine Johnson, Grace Alele-Williams, Maryam Mirzakhani, Maryna Viazovska et Hong Wang."},
+
+ {y:480, v:1, title:"Zu Chongzhi et π", place:"Chine", cont:["Asie"], n:[6,5], tag:"Cercle et π", g:"355⁄113", img:"祖冲之铜像.jpg",
+  p:["L'astronome chinois Zu Chongzhi montre que π est compris entre 3,1415926 et 3,1415927.",
+     "Il propose la fraction <b>355/113</b>, d'une précision incroyable. Son record tiendra plus de 900 ans."],
+  l:"cercle, fractions, valeurs approchées.", j:"calcule 355 ÷ 113. Combien de décimales sont justes ?",
+  r:"355/113 ≈ 3,1415929 et π ≈ 3,1415927 : <b>les 6 premières décimales sont justes</b>."},
+
+ {y:499, title:"Aryabhata", place:"Inde", cont:["Asie"], n:[6,5], tag:"Cercle et π", g:"3,1416", img:"2064 aryabhata-crp.jpg",
+  p:["À 23 ans, l'Indien Aryabhata écrit un traité d'astronomie et de mathématiques. Il y donne π ≈ <b>3,1416</b> sous la forme d'une recette de calcul.",
+     "En 1975, le premier satellite indien a reçu son nom."],
+  l:"cercle, périmètre, programmes de calcul.", j:"sa recette : ajoute 4 à 100, multiplie par 8, ajoute 62 000. Divise par 20 000. Que trouves-tu ?",
+  r:"(100 + 4) × 8 + 62 000 = 62 832, et 62 832 ÷ 20 000 = <b>3,1416</b> : c'est π !"},
+
+ {y:628, title:"Brahmagupta fait du zéro un nombre", place:"Inde", cont:["Asie"], n:[5,4], tag:"Règle des signes", g:"0", img:"876 CE monolithic rock Chaturbhuj Hindu Temple Gwalior Fort, Zero Inscription 3.jpg",
+  p:["En Inde, on écrit les nombres avec dix chiffres et un zéro qui marque une position vide. Brahmagupta va plus loin : il traite <b>le zéro comme un vrai nombre</b>.",
+     "Il donne les règles des nombres négatifs, les « dettes » (les positifs sont des « fortunes ») : une dette multipliée par une dette donne une fortune."],
+  l:"nombres relatifs, règle des signes.", j:"calcule (−4) × (−3), puis (−4) × 3.",
+  r:"(−4) × (−3) = <b>12</b> et (−4) × 3 = <b>−12</b>."},
+
+ {y:825, v:1, title:"Al-Khwarizmi invente l'algèbre", place:"Bagdad · Irak", cont:["Asie"], n:[4,3], tag:"Équations, algorithmes", g:"al-jabr", img:"Image-Al-Kitāb al-muḫtaṣar fī ḥisāb al-ğabr wa-l-muqābala.jpg", fit:"c",
+  p:["À la Maison de la Sagesse de Bagdad, Al-Khwarizmi écrit un livre pour résoudre des équations. Son titre contient le mot « al-jabr », qui a donné <b>algèbre</b>. Tout est écrit en phrases.",
+     "Traduit en latin, son nom devient « Algoritmi » : c'est l'origine du mot <b>algorithme</b>."],
+  l:"équations, algorithmique et Scratch.", j:"écris en phrase l'équation 2x + 5 = 17, puis résous-la.",
+  r:"« Le double d'une quantité, augmenté de 5, vaut 17. » 2x = 12, donc <b>x = 6</b>."},
+
+ {y:880, v:1, title:"Abu Kamil, le calculateur égyptien", place:"Le Caire · Égypte", cont:["Afrique"], n:[4], tag:"Racines carrées", g:"√", img:null, art:"root",
+  p:["Surnommé « le calculateur égyptien », Abu Kamil prolonge l'algèbre d'Al-Khwarizmi. Il calcule avec des <b>racines carrées</b> et résout des systèmes d'équations.",
+     "Trois siècles plus tard, Fibonacci reprendra plusieurs de ses problèmes."],
+  l:"racine carrée, calcul.", j:"calcule √16 + √9, puis √(16 + 9). Est-ce pareil ?",
+  r:"√16 + √9 = 4 + 3 = 7, mais √25 = 5. <b>Non : on ne peut pas « couper » une racine sur une somme.</b>"},
+
+ {y:1070, v:1, title:"Omar Khayyam, poète et algébriste", place:"Nichapur · Iran", cont:["Asie"], n:[4,3], tag:"Puissances", g:"x³", img:"The statue of Omar Khayyam.jpg",
+  p:["Poète célèbre, Omar Khayyam est aussi astronome et mathématicien. Il résout des <b>équations du troisième degré</b> (avec x³) en coupant des courbes entre elles.",
+     "Il participe aussi à la création d'un calendrier persan d'une très grande précision."],
+  l:"puissances, équations.", j:"résous x³ = 64.",
+  r:"4 × 4 × 4 = 64, donc <b>x = 4</b>."},
+
+ {y:1175, v:1, title:"Al-Hassar invente la barre de fraction", place:"Maghreb", cont:["Afrique"], n:[6,5], tag:"Fractions", g:"a⁄b", img:null, art:"frac",
+  p:["Au XIIe siècle, le mathématicien maghrébin Al-Hassar est le premier connu à écrire les fractions avec une <b>barre horizontale</b> entre le numérateur et le dénominateur.",
+     "Cette notation voyage ensuite jusqu'en Europe. Chaque fois que tu écris une fraction, tu utilises son idée."],
+  l:"fractions, écriture fractionnaire.", j:"range dans l'ordre croissant : 3/4, 2/3, 5/6.",
+  r:"Au dénominateur 12 : 8/12, 9/12, 10/12. Donc <b>2/3 &lt; 3/4 &lt; 5/6</b>."},
+
+ {y:1202, title:"Fibonacci, de Béjaïa à Pise", place:"Béjaïa (Algérie) · Pise (Italie)", cont:["Afrique","Europe"], n:[6,4], tag:"Numération, suites", g:"1·2·3·5·8", img:"Liber abbaci magliab f124r.jpg", fit:"c",
+  p:["Le jeune Leonardo de Pise apprend le calcul indo-arabe à <b>Béjaïa, en Algérie</b>, où travaille son père. Dans son livre <i>Liber abaci</i>, il fait découvrir à l'Europe les chiffres de 0 à 9.",
+     "Il y pose un problème de lapins qui donne une suite célèbre : <b>1, 1, 2, 3, 5, 8, 13…</b> Chaque terme est la somme des deux précédents."],
+  l:"numération décimale, programmes de calcul, Scratch.", j:"donne les 5 termes qui suivent 13.",
+  r:"<b>21, 34, 55, 89, 144.</b>"},
+
+ {y:1300, v:1, title:"Ibn al-Banna de Marrakech", place:"Marrakech · Maroc", cont:["Afrique"], n:[6,5], tag:"Calcul", g:"×", img:null, art:"lattice",
+  p:["Ibn al-Banna écrit des manuels d'arithmétique (fractions, racines, techniques de calcul) étudiés pendant des siècles dans tout le Maghreb.",
+     "Ses livres sont commentés de Fès à Tunis : de vrais « best-sellers » scientifiques du Moyen Âge."],
+  l:"calcul mental, priorités.", j:"calcule 25 × 48 de tête.",
+  r:"25 × 4 = 100, et 48 = 4 × 12, donc 25 × 48 = 100 × 12 = <b>1 200</b>."},
+
+ {y:1424, title:"Al-Kashi et 16 décimales de π", place:"Samarcande · Ouzbékistan", cont:["Asie"], n:[6,5], tag:"Nombres décimaux, π", g:"3,14159…", img:"Jamshid al Koshiy.jpg",
+  p:["Dans l'observatoire de Samarcande, Al-Kashi calcule <b>16 décimales de π</b>. Ce record tiendra environ 180 ans.",
+     "Il utilise aussi les fractions décimales avec une grande aisance, plus d'un siècle avant Stevin."],
+  l:"périmètre du cercle, nombres décimaux.", j:"quel est le périmètre d'un cercle de rayon 10 cm, avec π ≈ 3,14 ?",
+  r:"2 × 3,14 × 10 = <b>62,8 cm</b>."},
+
+ {y:1450, v:1, title:"Al-Qalasadi, de Tlemcen à Béja", place:"Tlemcen (Algérie) · Béja (Tunisie)", cont:["Afrique"], n:[4,3], tag:"Calcul littéral", g:"x²", img:null, art:"balance",
+  p:["Né en Andalousie, Al-Qalasadi étudie et enseigne à <b>Tlemcen, en Algérie</b>, puis s'installe en Tunisie.",
+     "Dans ses livres d'algèbre, il remplace les mots par de petites lettres arabes pour l'inconnue, son carré ou l'égalité : <b>une des premières notations symboliques</b>."],
+  l:"calcul littéral, équations.", j:"écris avec des symboles « le carré d'un nombre augmenté de 3 vaut 12 », puis trouve ce nombre.",
+  r:"x² + 3 = 12, donc x² = 9 et <b>x = 3</b> (ou −3)."},
+
+ {y:1489, y2:1631, era:4, title:"Naissance des symboles + − = ×", place:"Allemagne · Angleterre", cont:["Europe"], n:[5,4], tag:"Calcul littéral", g:"=", img:"Recorde - The Whetstone of Witte - equals.jpg", fit:"c",
+  p:["Les signes <b>+ et −</b> apparaissent dans un livre imprimé en Allemagne en 1489.",
+     "En 1557, l'Anglais Robert Recorde invente le signe <b>=</b> : deux traits parallèles de même longueur, car rien n'est plus égal. Le <b>×</b> arrive en 1631."],
+  l:"calcul littéral, écriture des expressions.", j:"écris sans symbole : « 3 × (x + 2) = 15 ».",
+  r:"« Trois fois la somme d'un nombre et de deux vaut quinze. » Bonus : ce nombre est <b>3</b>."},
+
+ {y:1585, title:"Stevin et les nombres à virgule", place:"Bruges · Pays-Bas", cont:["Europe"], n:[6], tag:"Nombres décimaux", g:"0,1", img:"De Thiende.jpg", fit:"c",
+  p:["Simon Stevin publie <i>La Disme</i>, un petit livre qui explique comment calculer avec des <b>nombres décimaux</b>, bien plus simples que les fractions pour les commerçants.",
+     "Il propose déjà de découper monnaies, poids et longueurs en dixièmes et centièmes. La France le fera deux siècles plus tard."],
+  l:"nombres décimaux, fractions décimales.", j:"écris 3,47 comme une somme de fractions décimales.",
+  r:"<b>3,47 = 3 + 4/10 + 7/100.</b>"},
+
+ {y:1637, title:"Descartes et la lettre x", place:"France", cont:["Europe"], n:[4,3], tag:"Puissances, repère", g:"(x ; y)", img:"Frans Hals - Portret van René Descartes.jpg",
+  p:["René Descartes note les inconnues avec les dernières lettres de l'alphabet, <b>x, y, z</b>, et écrit les puissances avec un petit exposant : x³.",
+     "Surtout, il relie la géométrie et l'algèbre : une figure se décrit avec des nombres. Le <b>repère cartésien</b> porte son nom."],
+  l:"calcul littéral, puissances, repère.", j:"place les points A(2 ; 3) et B(−1 ; 4) dans un repère.",
+  r:"A : 2 à droite, 3 en haut. B : <b>1 à gauche</b>, 4 en haut."},
+
+ {y:1654, title:"Pascal, Fermat et le hasard", place:"France", cont:["Europe"], n:[5,3], tag:"Probabilités", g:"1⁄6", img:"Pascaline-CnAM 823-1-IMG 1506-black.jpg", fit:"c",
+  p:["Un joueur demande à Blaise Pascal comment partager l'argent d'une partie de dés interrompue. Pascal en discute par lettres avec Pierre de Fermat : c'est la naissance du <b>calcul des probabilités</b>.",
+     "À 19 ans, Pascal avait déjà construit une machine à calculer : la Pascaline (en photo)."],
+  l:"probabilités, expériences aléatoires.", j:"quelle est la probabilité d'obtenir un 6 avec un dé équilibré ?",
+  r:"6 issues équiprobables, 1 favorable : <b>1/6</b>."},
+
+ {y:1700, v:1, title:"Les sangaku, la géométrie des temples", place:"Japon", cont:["Asie"], n:[6,5], tag:"Cercles, aires", g:"◯", img:"Sangaku at Enmanji.jpg",
+  p:["Au Japon, on accroche dans les temples des tablettes de bois peintes : les <b>sangaku</b>. Chacune présente un beau problème de géométrie, souvent avec des cercles.",
+     "Paysans, samouraïs ou enfants : tout le monde pouvait proposer un problème ou une solution, en offrande."],
+  l:"cercle, carré, aire.", j:"dans un carré de 10 cm de côté, on trace le plus grand cercle possible. Quelle est son aire ?",
+  r:"Son rayon est 5 cm : π × 5² = 25π ≈ <b>78,5 cm²</b>."},
+
+ {y:1734, title:"Euler écrit f(x)", place:"Bâle · Suisse", cont:["Europe"], n:[3], tag:"Fonctions", g:"f(x)", img:"Leonhard Euler by Handmann.png",
+  p:["Leonhard Euler est l'un des mathématiciens les plus productifs de l'histoire : il publie même après être devenu presque aveugle.",
+     "On lui doit la notation <b>f(x)</b>. Il rend aussi populaire la lettre π, proposée en 1706 par William Jones."],
+  l:"fonctions, image et antécédent.", j:"si f(x) = 2x + 1, calcule f(3) et f(−2).",
+  r:"f(3) = <b>7</b> et f(−2) = <b>−3</b>."},
+
+ {y:1780, v:1, title:"Thomas Fuller, le calculateur", place:"Afrique de l'Ouest · Virginie (États-Unis)", cont:["Afrique","Amériques"], n:[6,5], tag:"Durées, calcul", g:"∑", img:null, art:"hourglass",
+  p:["Né en Afrique de l'Ouest vers 1710, Thomas Fuller est déporté à 14 ans et réduit en esclavage en Virginie. Il n'a jamais appris à lire, mais il <b>calcule de tête</b> à une vitesse stupéfiante.",
+     "Devant des témoins, il trouve en deux minutes environ le nombre de secondes dans un an et demi. Son histoire est publiée en 1789 et sert d'argument contre l'esclavage."],
+  l:"durées, grands nombres.", j:"combien y a-t-il de secondes dans une année de 365 jours ? Et dans un an et demi ?",
+  r:"365 × 24 × 3 600 = <b>31 536 000 s</b>. Un an et demi : <b>47 304 000 s</b>, la réponse de Fuller."},
+
+ {y:1795, title:"Naissance du système métrique", place:"Paris · France", cont:["Europe"], n:[6,5], tag:"Conversions", g:"1 m", img:"Mètre étalon (36, rue de Vaugirard, Paris).jpg",
+  p:["Avant la Révolution, chaque région a ses unités : pieds, pouces, toises… En 1795, la France adopte le <b>système métrique décimal</b>.",
+     "Le mètre est défini à partir du méridien terrestre. Delambre et Méchain mesurent pendant des années la distance de Dunkerque à Barcelone pour le calculer."],
+  l:"conversions d'unités, nombres décimaux.", j:"convertis 3,25 km en m, puis 450 cm en m.",
+  r:"<b>3 250 m</b> et <b>4,5 m</b>."},
+
+ {y:1816, title:"Sophie Germain, alias M. Le Blanc", place:"Paris · France", cont:["Europe"], n:[3], tag:"Nombres premiers", g:"2p+1", img:"Germain.jpeg",
+  p:["Les femmes n'ont pas le droit d'étudier à l'université. Sophie Germain apprend seule et écrit à Lagrange et Gauss sous un nom d'homme : <b>Monsieur Le Blanc</b>.",
+     "En 1816, elle remporte le prix de l'Académie des sciences. Les nombres premiers p tels que 2p + 1 est aussi premier portent son nom."],
+  l:"nombres premiers, calcul littéral.", j:"trouve les nombres premiers de Sophie Germain inférieurs à 30.",
+  r:"<b>2, 3, 5, 11, 23 et 29</b>. Pour 7, ça ne marche pas : 2 × 7 + 1 = 15."},
+
+ {y:1832, title:"Galois, génie à 20 ans", place:"Paris · France", cont:["Europe"], n:[4,3], tag:"Équations", g:"20", img:"Evariste Galois.jpg",
+  p:["Évariste Galois échoue deux fois au concours de Polytechnique, mais ses idées sur les équations sont révolutionnaires.",
+     "Il meurt à 20 ans, blessé lors d'un duel. La veille, il écrit une lettre qui résume ses découvertes : elles fondent la <b>théorie des groupes</b>, utilisée aujourd'hui partout, jusqu'en physique."],
+  l:"équations, raisonnement.", j:"né le 25 octobre 1811, mort le 31 mai 1832 : quel âge avait-il exactement ?",
+  r:"<b>20 ans</b> : il n'avait pas encore fêté ses 21 ans."},
+
+ {y:1843, title:"Ada Lovelace, première programmeuse", place:"Londres · Royaume-Uni", cont:["Europe"], n:[5,4,3], tag:"Algorithmique", g:"{ }", img:"Ada Lovelace portrait.jpg",
+  p:["Ada Lovelace étudie la machine analytique de Charles Babbage, ancêtre de l'ordinateur. Dans ses notes, elle écrit une suite d'instructions pour lui faire calculer des nombres.",
+     "On la considère comme <b>la première programmeuse de l'histoire</b>, un siècle avant les ordinateurs."],
+  l:"algorithmique, Scratch, boucles.", j:"écris un algorithme qui calcule 1 + 2 + … + 100.",
+  r:"S = 0 ; pour i de 1 à 100, ajouter i à S ; afficher S. Résultat : <b>5 050</b>."},
+
+ {y:1858, title:"Florence Nightingale, l'infirmière statisticienne", place:"Londres · Royaume-Uni", cont:["Europe"], n:[5,4], tag:"Statistiques", g:"%", img:"Nightingale-mortality.jpg", fit:"c",
+  p:["Infirmière pendant la guerre de Crimée, Florence Nightingale compte les décès dans les hôpitaux militaires. Avec un graphique en forme de rose, elle montre que <b>les soldats meurent surtout de maladies</b>, faute d'hygiène.",
+     "Ses diagrammes convainquent le gouvernement. En 1858, elle devient la première femme membre de la Société royale de statistique."],
+  l:"statistiques, diagrammes, pourcentages.", j:"sur 120 décès, 90 sont dus aux maladies. Quel pourcentage ?",
+  r:"90 ÷ 120 = 0,75, soit <b>75 %</b>."},
+
+ {y:1913, title:"Ramanujan écrit à Cambridge", place:"Madras · Inde", cont:["Asie"], n:[4,3], tag:"Puissances", g:"1729", img:"Srinivasa Ramanujan - OPC - 1.jpg",
+  p:["Modeste employé de bureau, presque autodidacte, Srinivasa Ramanujan envoie des pages de formules au mathématicien anglais Hardy, qui le fait venir à Cambridge.",
+     "Un jour, Hardy arrive en taxi n° 1729, « un nombre sans intérêt ». Ramanujan répond aussitôt : <b>c'est le plus petit nombre qui s'écrit de deux façons comme somme de deux cubes</b>."],
+  l:"puissances, calcul.", j:"vérifie que 1729 = 1³ + 12³ = 9³ + 10³.",
+  r:"1 + 1 728 = 1 729 et 729 + 1 000 = 1 729. <b>Bravo, Ramanujan avait raison !</b>"},
+
+ {y:1936, title:"Turing imagine l'ordinateur", place:"Cambridge · Royaume-Uni", cont:["Europe"], n:[5,4,3], tag:"Algorithmique", g:"0 1", img:"Alan Turing Aged 16.jpg",
+  p:["À 24 ans, Alan Turing décrit une machine imaginaire capable d'exécuter n'importe quel algorithme : la <b>machine de Turing</b>, modèle de tous nos ordinateurs.",
+     "Pendant la Seconde Guerre mondiale, il aide à casser Enigma, le code secret de l'armée allemande."],
+  l:"algorithmique, programmation.", j:"en binaire, on n'utilise que 0 et 1 : 1101 vaut 8 + 4 + 0 + 1. Combien ?",
+  r:"<b>13.</b> Chaque chiffre vaut le double de celui de droite : 8, 4, 2, 1."},
+
+ {y:1962, title:"Katherine Johnson envoie Glenn en orbite", place:"NASA · États-Unis", cont:["Amériques"], n:[6,5], tag:"Durées, vitesses", g:"90′", img:"Katherine Johnson at NASA, in 1966.jpg",
+  p:["Katherine Johnson, mathématicienne afro-américaine, calcule les trajectoires des fusées de la NASA, à une époque de ségrégation raciale.",
+     "En 1962, l'astronaute John Glenn exige qu'elle <b>vérifie à la main les calculs de l'ordinateur</b> avant de décoller. Son histoire est racontée dans le film <i>Les Figures de l'ombre</i>."],
+  l:"durées, proportionnalité.", j:"une capsule fait le tour de la Terre en 90 minutes. Combien de tours en 24 heures ?",
+  r:"24 h = 1 440 min, et 1 440 ÷ 90 = <b>16 tours</b>."},
+
+ {y:1963, title:"Grace Alele-Williams", place:"Warri · Nigeria", cont:["Afrique"], n:[6,5,4,3], tag:"Fractions, proportions", g:"✦", img:"Professor Grace Alele-Williams (First Female Vice Chancellor).jpg",
+  p:["Née au Nigeria, Grace Alele-Williams obtient en 1963 un doctorat en enseignement des mathématiques à l'université de Chicago, <b>l'une des toutes premières Nigérianes docteures</b>.",
+     "De 1985 à 1991, elle est la première femme à diriger une université au Nigeria. Elle consacre sa vie à mieux enseigner les maths en Afrique."],
+  l:"fractions d'une quantité.", j:"dans une classe de 28 élèves, 4/7 sont des filles. Combien de filles ?",
+  r:"28 ÷ 7 × 4 = <b>16 filles</b>."},
+
+ {y:1975, title:"Mandelbrot et les fractales", place:"Varsovie · France · États-Unis", cont:["Europe","Amériques"], n:[6,5], tag:"Longueurs, motifs", g:"❄", img:"Mandel zoom 00 mandelbrot set.jpg",
+  p:["Né en Pologne, élevé en France, Benoît Mandelbrot invente en 1975 le mot <b>fractale</b> : une forme dont chaque morceau ressemble au tout.",
+     "Côtes rocheuses, chou romanesco, flocons de neige, éclairs : la nature est pleine de fractales. Ses images calculées par ordinateur fascinent le monde entier."],
+  l:"longueurs, agrandissement.", j:"un segment de 9 cm est coupé en 3. On remplace le morceau du milieu par deux segments de même longueur (un petit pic). Nouvelle longueur ?",
+  r:"4 morceaux de 3 cm : <b>12 cm</b>. On recommence à l'infini et on obtient le flocon de Koch !"},
+
+ {y:1976, title:"Le théorème des quatre couleurs", place:"Illinois · États-Unis", cont:["Amériques"], n:[6,5,4,3], tag:"Logique", g:"4", img:"Four Colour Map Example.svg", fit:"c",
+  p:["Depuis 1852, une question résiste : <b>4 couleurs suffisent-elles toujours</b> pour colorier une carte sans que deux pays voisins aient la même couleur ?",
+     "En 1976, Appel et Haken prouvent que oui, avec l'aide d'un ordinateur. C'est la première grande démonstration réalisée en partie par une machine, et elle fait débat."],
+  l:"logique, raisonnement.", j:"colorie la carte des régions de France avec 4 couleurs au maximum.",
+  r:"<b>C'est toujours possible</b> : le théorème le garantit pour n'importe quelle carte !"},
+
+ {y:1992, title:"Ahmed Djebbar, mémoire des savants arabes", place:"Algérie · France", cont:["Afrique","Europe"], n:[6,5,4,3], tag:"Histoire des sciences", g:"ع", img:null, art:"astro",
+  p:["Né en Algérie en 1941, Ahmed Djebbar est mathématicien et historien des sciences. En 1992, il devient <b>ministre de l'Éducation en Algérie</b>.",
+     "Toute sa carrière, il fait redécouvrir les savants du monde arabe et du Maghreb, comme Al-Khwarizmi, Abu Kamil ou Al-Qalasadi."],
+  l:"histoire des sciences.", j:"retrouve sur cette frise trois savants qui ont vécu en Afrique du Nord.",
+  r:"Par exemple <b>Al-Hassar, Ibn al-Banna, Al-Qalasadi</b> (et Fibonacci a appris à Béjaïa, Euclide et Hypatie à Alexandrie…)."},
+
+ {y:1994, title:"Wiles démontre Fermat", place:"Princeton · États-Unis", cont:["Europe","Amériques"], n:[4,3], tag:"Pythagore, puissances", g:"xⁿ", img:"Andrew Wiles, Boston 1995.JPG",
+  p:["En 1637, Fermat écrit dans une marge que xⁿ + yⁿ = zⁿ n'a aucune solution en nombres entiers dès que n ≥ 3, et que sa preuve ne tient pas dans la marge.",
+     "357 ans plus tard, l'Anglais Andrew Wiles, qui en rêvait depuis ses 10 ans, <b>le démontre enfin</b> après 7 ans de travail en secret."],
+  l:"Pythagore, puissances.", j:"pour n = 2, ça marche : 3² + 4² = 5². Trouve un autre trio d'entiers qui convient.",
+  r:"Par exemple <b>6, 8, 10</b> (36 + 64 = 100) ou <b>5, 12, 13</b> (25 + 144 = 169)."},
+
+ {y:2003, title:"L'AIMS forme les talents africains", place:"Le Cap · Afrique du Sud", cont:["Afrique"], n:[4,3], tag:"Vitesses", g:"AIMS", img:"AIMS South Africa Centre in Muizenberg, Cape Town.jpg",
+  p:["En 2003 ouvre au Cap l'<b>Institut africain des sciences mathématiques</b> (AIMS), pour former des étudiants venus de tout le continent.",
+     "Le réseau compte aujourd'hui des centres dans plusieurs pays africains, comme le Sénégal, le Ghana, le Cameroun ou le Rwanda."],
+  l:"vitesse, durée, distance.", j:"Le Cap est à environ 9 300 km de Paris. Un avion vole à 850 km/h. Combien de temps de vol ?",
+  r:"9 300 ÷ 850 ≈ <b>11 heures</b>."},
+
+ {y:2003, v:1, title:"Perelman refuse le million", place:"Saint-Pétersbourg · Russie", cont:["Europe"], n:[6,5,4,3], tag:"Grands problèmes", g:"1 M$", img:"Grigori Perelman, 1993 (re-scanned) (cropped).jpg",
+  p:["Grigori Perelman démontre la <b>conjecture de Poincaré</b>, l'un des sept « problèmes du millénaire » dotés chacun d'un million de dollars. Il publie sa preuve simplement sur Internet.",
+     "Il refuse la médaille Fields en 2006 puis le million de dollars en 2010 : seule la beauté du problème l'intéressait."],
+  l:"la recherche en mathématiques.", j:"7 problèmes du millénaire ont été posés en 2000 ; seul celui-ci est résolu. Combien en reste-t-il ?",
+  r:"<b>6</b>… et 6 millions de dollars à gagner. Avis aux amateurs !"},
+
+ {y:2010, title:"Villani et Ngô, médailles Fields", place:"France · Vietnam", cont:["Europe","Asie"], n:[4,3], tag:"Calcul de durées", g:"Fields", img:"Cedric Villani at his office 2015 n3.jpg",
+  p:["En 2010, deux mathématiciens travaillant en France reçoivent la médaille Fields : <b>Cédric Villani</b>, reconnaissable à sa lavallière et à sa broche araignée, et <b>Ngô Bảo Châu</b>, né à Hanoï au Vietnam.",
+     "La médaille Fields récompense tous les 4 ans des mathématiciens de moins de 40 ans."],
+  l:"calculs de durées.", j:"Villani est né en octobre 1973. Aurait-il pu recevoir la médaille en 2014 ? (Il faut avoir moins de 40 ans au 1er janvier.)",
+  r:"<b>Non</b> : le 1er janvier 2014, il avait déjà 40 ans."},
+
+ {y:2014, title:"Maryam Mirzakhani", place:"Téhéran (Iran) · Stanford (États-Unis)", cont:["Asie","Amériques"], n:[6,5,4,3], tag:"Géométrie", g:"♀", img:"Maryam Mirzakhani (cropped).jpg",
+  p:["En 2014, l'Iranienne Maryam Mirzakhani est <b>la première femme à recevoir la médaille Fields</b>, pour ses travaux sur la géométrie des surfaces courbes.",
+     "Enfant, elle voulait être écrivaine. Pour elle, faire des maths, c'était comme être perdue dans une jungle et chercher son chemin."],
+  l:"la recherche en mathématiques.", j:"la médaille Fields existe depuis 1936. Combien d'années avant qu'une femme la reçoive ?",
+  r:"2014 − 1936 = <b>78 ans</b>."},
+
+ {y:2022, title:"Viazovska empile les sphères", place:"Ukraine · Suisse", cont:["Europe"], n:[6,5], tag:"Volumes", g:"●●●", img:"Maryna Vazovska MFO 2013 crop.jpg",
+  p:["L'Ukrainienne Maryna Viazovska devient la deuxième femme médaille Fields. Elle a trouvé la meilleure façon d'<b>empiler des sphères</b>… en dimension 8 !",
+     "La même année, le Français <b>Hugo Duminil-Copin</b> reçoit lui aussi la médaille."],
+  l:"volumes, dénombrement.", j:"une caisse contient 4 couches de 5 × 6 oranges. Combien d'oranges ?",
+  r:"4 × 5 × 6 = <b>120 oranges</b>."},
+
+ {y:2023, title:"Le « chapeau », tuile magique", place:"Yorkshire · Royaume-Uni", cont:["Europe"], n:[5,4], tag:"Pavages", g:"⬡", img:"Aperiodic tiling by hats.png", fit:"c",
+  p:["Existe-t-il une seule tuile qui recouvre tout le plan <b>sans jamais former de motif qui se répète</b> ? Les chercheurs cherchaient depuis les années 1960.",
+     "C'est un amateur, David Smith, qui la découvre en jouant avec des formes : un polygone à 13 côtés surnommé « le chapeau ». Trois chercheurs l'aident à le prouver en 2023."],
+  l:"pavages, polygones, angles.", j:"quels polygones réguliers pavent le plan tout seuls ?",
+  r:"<b>Le triangle équilatéral, le carré et l'hexagone</b> : leurs angles (60°, 90°, 120°) divisent 360°."},
+
+ {y:2024, title:"Le plus grand nombre premier", place:"Californie · États-Unis", cont:["Amériques"], n:[4,3], tag:"Puissances", g:"2ⁿ−1", img:"Marin mersenne.jpg",
+  p:["Le 12 octobre 2024, Luke Durant découvre que <b>2<sup>136 279 841</sup> − 1</b> est premier, grâce à des milliers de processeurs loués sur Internet. Il compte 41 024 320 chiffres !",
+     "Ces nombres s'appellent nombres de Mersenne, d'après Marin Mersenne, moine et savant français du XVIIe siècle (en image)."],
+  l:"puissances, nombres premiers.", j:"calcule 2ⁿ − 1 pour n = 2, 3, 5, 7, puis 11. Sont-ils tous premiers ?",
+  r:"3, 7, 31, 127 sont premiers… mais <b>2¹¹ − 1 = 2 047 = 23 × 89</b> ne l'est pas !"},
+
+ {y:2026, title:"Hong Wang, médaille Fields", place:"Chine · États-Unis · France", cont:["Asie","Amériques","Europe"], n:[6,5,4,3], tag:"Géométrie", g:"↻", img:"Hong Wang, 2025 (cropped).jpg",
+  p:["En juillet 2026 à Philadelphie, quatre médailles Fields sont remises : Yu Deng, John Pardon, Jacob Tsimerman et <b>Hong Wang</b>, troisième femme lauréate et première Chinoise. Elle travaille à New York et à l'IHÉS, près de Paris.",
+     "Elle est connue pour ses travaux sur le <b>problème de Kakeya</b> : quelle place faut-il au minimum pour faire faire un tour complet à une aiguille ?"],
+  l:"aire du disque, géométrie.", j:"une aiguille de 10 cm tourne d'un tour complet autour de son milieu. Quelle aire balaie-t-elle ?",
+  r:"Un disque de rayon 5 cm : 25π ≈ <b>78,5 cm²</b>. Surprise : avec des allers-retours astucieux, on peut faire tourner l'aiguille dans une surface aussi petite qu'on veut !"}
+];
+
+/* ---------- Illustrations dessinées (étapes sans image libre) ---------- */
+const T = (x, y, s, txt, extra = '') => `<text x="${x}" y="${y}" font-size="${s}" text-anchor="middle" fill="currentColor" font-family="Bricolage Grotesque, Arial Black, sans-serif" font-weight="800" ${extra}>${txt}</text>`;
+const STAR = (cx, cy, r) => `<g stroke="currentColor" stroke-width="2" fill="none" opacity=".7"><rect x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}"/><rect x="${cx - r}" y="${cy - r}" width="${2 * r}" height="${2 * r}" transform="rotate(45 ${cx} ${cy})"/></g>`;
+const ART = {
+  root: `<svg viewBox="0 0 400 250" role="img" aria-label="Un carré de 16 cases a un côté de 4 : racine de 16 égale 4">
+    <rect x="50" y="35" width="170" height="170" fill="currentColor" fill-opacity=".14" stroke="currentColor" stroke-width="4"/>
+    <path d="M92.5 35V205M135 35V205M177.5 35V205M50 77.5H220M50 120H220M50 162.5H220" stroke="currentColor" stroke-width="1.5" opacity=".6"/>
+    ${T(135, 236, 26, '4')}${T(30, 129, 26, '4')}
+    ${T(305, 118, 66, '√16')}${T(305, 182, 50, '= 4')}</svg>`,
+  frac: `<svg viewBox="0 0 400 250" role="img" aria-label="Un disque partagé en quatre, trois parts colorées : trois quarts">
+    <circle cx="125" cy="125" r="80" fill="none" stroke="currentColor" stroke-width="4"/>
+    <path d="M125 125L125 45A80 80 0 1 1 45 125Z" fill="currentColor" fill-opacity=".6"/>
+    <path d="M45 125H205M125 45V205" stroke="currentColor" stroke-width="3"/>
+    ${T(300, 108, 84, '3')}<rect x="252" y="126" width="96" height="9" rx="4.5" fill="currentColor"/>${T(300, 214, 84, '4')}
+    ${STAR(368, 34, 13)}${STAR(30, 222, 10)}</svg>`,
+  lattice: (() => {
+    const cell = (x, y, a, b) => `${T(x + 22, y + 31, 22, a, 'opacity=".8"')}${T(x + 49, y + 59, 22, b, 'opacity=".8"')}`;
+    return `<svg viewBox="0 0 400 250" role="img" aria-label="Multiplication par jalousies : 25 fois 48 égale 1200">
+    <rect x="95" y="50" width="140" height="140" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="3.5"/>
+    <path d="M165 50V190M95 120H235" stroke="currentColor" stroke-width="3"/>
+    <path d="M165 50L95 120M235 50L165 120M165 120L95 190M235 120L165 190" stroke="currentColor" stroke-width="1.6" opacity=".7"/>
+    ${T(130, 40, 26, '2')}${T(200, 40, 26, '5')}${T(254, 94, 26, '4')}${T(254, 164, 26, '8')}
+    ${cell(95, 50, '0', '8')}${cell(165, 50, '2', '0')}${cell(95, 120, '1', '6')}${cell(165, 120, '4', '0')}
+    ${T(76, 96, 28, '1')}${T(76, 166, 28, '2')}${T(130, 222, 28, '0')}${T(200, 222, 28, '0')}
+    ${T(330, 112, 26, '25 × 48')}${T(330, 152, 34, '= 1 200')}${STAR(360, 210, 12)}</svg>`;
+  })(),
+  balance: `<svg viewBox="0 0 400 250" role="img" aria-label="Une balance en équilibre : x au carré plus 3 d'un côté, 12 de l'autre">
+    <path d="M200 66V214M172 236H228L200 214Z" stroke="currentColor" stroke-width="4" fill="currentColor" fill-opacity=".2" stroke-linejoin="round"/>
+    <path d="M88 74H312" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+    <circle cx="200" cy="66" r="8" fill="currentColor"/>
+    <path d="M95 74L60 152M95 74L130 152M305 74L270 152M305 74L340 152" stroke="currentColor" stroke-width="2" opacity=".7"/>
+    <path d="M48 152Q95 196 142 152Z M258 152Q305 196 352 152Z" stroke="currentColor" stroke-width="3" fill="currentColor" fill-opacity=".25"/>
+    ${T(95, 212, 26, 'x² + 3')}${T(305, 212, 30, '12')}${T(200, 40, 22, '=', 'opacity=".8"')}</svg>`,
+  hourglass: `<svg viewBox="0 0 400 250" role="img" aria-label="Un sablier : 47 304 000 secondes dans un an et demi">
+    <path d="M58 38H162M58 212H162" stroke="currentColor" stroke-width="6" stroke-linecap="round"/>
+    <path d="M76 42C76 98 108 110 108 125C108 140 76 152 76 208M144 42C144 98 112 110 112 125C112 140 144 152 144 208" stroke="currentColor" stroke-width="3.5" fill="none"/>
+    <path d="M86 78Q110 92 134 78L114 117H106Z" fill="currentColor" fill-opacity=".55"/>
+    <path d="M80 208Q110 160 140 208Z" fill="currentColor" fill-opacity=".55"/>
+    <path d="M110 120V195" stroke="currentColor" stroke-width="1.6" stroke-dasharray="3 5"/>
+    ${T(285, 112, 36, '47 304 000')}${T(285, 148, 22, 'secondes', 'opacity=".85"')}${T(285, 178, 17, 'dans un an et demi', 'opacity=".7"')}</svg>`,
+  astro: (() => {
+    let ticks = '';
+    for (let k = 0; k < 72; k++) {
+      const a = k * Math.PI / 36, r1 = k % 6 === 0 ? 70 : 76, r2 = 86;
+      ticks += `M${(200 + r1 * Math.cos(a)).toFixed(1)} ${(130 + r1 * Math.sin(a)).toFixed(1)}L${(200 + r2 * Math.cos(a)).toFixed(1)} ${(130 + r2 * Math.sin(a)).toFixed(1)}`;
+    }
+    const pts = [[160, 92], [244, 104], [182, 160], [228, 158], [205, 82]].map(([x, y]) => `<path d="M${x} ${y}l6 -12l6 12z" fill="currentColor"/>`).join('');
+    return `<svg viewBox="0 0 400 250" role="img" aria-label="Un astrolabe, instrument savant du monde arabe">
+    <circle cx="200" cy="22" r="11" fill="none" stroke="currentColor" stroke-width="4"/><path d="M200 33V44" stroke="currentColor" stroke-width="5"/>
+    <circle cx="200" cy="130" r="88" fill="currentColor" fill-opacity=".1" stroke="currentColor" stroke-width="5"/>
+    <path d="${ticks}" stroke="currentColor" stroke-width="1.4" opacity=".75"/>
+    <circle cx="200" cy="130" r="54" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".6"/>
+    <circle cx="200" cy="130" r="30" fill="none" stroke="currentColor" stroke-width="1.6" opacity=".6"/>
+    <circle cx="200" cy="114" r="46" fill="none" stroke="currentColor" stroke-width="3"/>
+    ${pts}
+    <path d="M128 200L272 60" stroke="currentColor" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="200" cy="130" r="6" fill="currentColor"/>
+    ${STAR(46, 46, 14)}${STAR(354, 206, 14)}</svg>`;
+  })()
+};
+
+
+document.documentElement.classList.add('js');
+
+const ERAS = [
+  { id: 1, name: "Préhistoire", span: "Avant l'écriture", c: "#e39b5b", intro: "Bien avant l'écriture, on compte déjà en gravant des encoches dans l'os." },
+  { id: 2, name: "Antiquité", span: "−3000 → 476", c: "#e8c35a", intro: "Mésopotamie, Égypte, Grèce, Chine, pays mayas : les nombres et les figures prennent forme sur plusieurs continents à la fois." },
+  { id: 3, name: "Moyen Âge", span: "476 → 1492", c: "#3ec7b6", intro: "De Bagdad à Marrakech, de l'Inde à Béjaïa : le zéro, l'algèbre et les chiffres voyagent d'un monde à l'autre." },
+  { id: 4, name: "Temps modernes", span: "1492 → 1789", c: "#ff7a59", intro: "Symboles, nombres décimaux, repère, probabilités : les outils de ton cours se mettent en place." },
+  { id: 5, name: "XIXe siècle", span: "1789 → 1900", c: "#b79cff", intro: "Le mètre, le premier programme, des statistiques qui sauvent des vies, et des génies morts trop jeunes." },
+  { id: 6, name: "XXe siècle", span: "1900 → 2000", c: "#5aa9ff", intro: "Des talents venus d'Inde, d'Afrique, des États-Unis ; l'ordinateur entre dans les mathématiques." },
+  { id: 7, name: "XXIe siècle", span: "Depuis 2000", c: "#ff5fa2", intro: "Records, médailles, découvertes d'amateurs : les mathématiques s'écrivent encore aujourd'hui." }
+];
+const eraOf = e => e.era || (e.y < -3000 ? 1 : e.y < 476 ? 2 : e.y < 1492 ? 3 : e.y < 1789 ? 4 : e.y < 1900 ? 5 : e.y < 2000 ? 6 : 7);
+const ERA = id => ERAS[id - 1];
+
+/* ---------- Outils de texte ---------- */
+const fr = s => s.replace(/<b>/g, '<strong>').replace(/<\/b>/g, '</strong>')
+  .replace(/ ([:?!;])/g, '&nbsp;$1').replace(/« /g, '«&nbsp;').replace(/ »/g, '&nbsp;»')
+  .replace(/(\d) (\d{3})/g, '$1&nbsp;$2');
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const yearTxt = n => { const a = Math.abs(n); const s = a >= 10000 ? String(a).replace(/(\d)(\d{3})$/, '$1 $2') : String(a); return (n < 0 ? '−' : '') + s; };
+const yearFull = e => e.y2 ? `${yearTxt(e.y)} → ${yearTxt(e.y2)}` : yearTxt(e.y);
+const yearSub = e => (e.y < 0 && !(e.y2 && e.y2 > 0)) ? 'av. J.-C.' : '';
+const imgUrl = f => 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(f) + (/\.gif$/i.test(f) ? '' : '?width=960');
+const pageUrl = f => 'https://commons.wikimedia.org/wiki/File:' + encodeURIComponent(f.replace(/ /g, '_'));
+
+/* ---------- Construction ---------- */
+function mediaHTML(e, i, cls = 'media') {
+  const ph = `<div class="ph"><b>${esc(e.g)}</b></div>`;
+  if (!e.img && e.art && ART[e.art]) return `<div class="${cls}"><div class="ph art">${ART[e.art]}</div><span class="credit">Illustration</span></div>`;
+  if (!e.img) return `<div class="${cls}">${ph}</div>`;
+  return `<div class="${cls}${e.fit ? ' fit' : ''}">
+    <img src="${imgUrl(e.img)}" alt="${esc(e.title)}" loading="lazy" decoding="async" data-i="${i}">
+    <a class="credit" href="${pageUrl(e.img)}" target="_blank" rel="noopener">Commons</a></div>`;
+}
+function defiHTML(e, i) {
+  return `<div class="defi">
+    <div class="defi-q"><i>DÉFI</i>${fr(e.j.charAt(0).toUpperCase() + e.j.slice(1))}</div>
+    <div class="acts"><button class="dbtn" type="button" data-rev="${i}">Voir la réponse</button></div>
+    <div class="rep" id="rep${i}" hidden>
+      <p>${fr(e.r)}</p>
+      <div class="acts" id="ask${i}"><span class="ask">Tu avais trouvé&nbsp;?</span>
+        <button class="dbtn" type="button" data-won="${i}">Oui&nbsp;!</button>
+        <button class="dbtn ghost" type="button" data-lost="${i}">Pas encore</button></div>
+    </div>
+  </div>`;
+}
+function eventHTML(e, i, side) {
+  const era = ERA(eraOf(e)), sub = yearSub(e);
+  return `<article class="ev ${side}" id="etape-${i + 1}" data-i="${i}" style="--c:${era.c}">
+    <span class="dot" aria-hidden="true"></span>
+    <div class="yr">${e.v ? '<small>Vers</small>' : ''}<strong>${yearFull(e)}</strong>${sub ? `<small>${sub}</small>` : ''}
+      <div class="place">${pin()}${esc(e.place)}</div></div>
+    <div class="card">
+      <div style="position:relative">${mediaHTML(e, i)}
+        <span class="badge-y">${e.v ? 'Vers ' : ''}${yearFull(e)}${sub ? ' ' + sub : ''}</span>
+        <div class="conts">${e.cont.map(c => `<span>${c}</span>`).join('')}</div></div>
+      <div class="content">
+        <div class="place-m">${esc(e.place)}</div>
+        <h3>${esc(e.title)}</h3>
+        <div class="lv"><span class="t">${esc(e.tag)}</span>${e.n.slice().sort((a, b) => b - a).map(n => `<span>${n}e</span>`).join('')}</div>
+        ${e.p.map(p => `<p>${fr(p)}</p>`).join('')}
+        <div class="cours"><strong>Dans ton cours&nbsp;:</strong> ${fr(e.l)}</div>
+        ${defiHTML(e, i)}
+        <div class="tools"><button class="tool" type="button" data-proj="${i}">Projeter</button><button class="tool" type="button" data-share="${i}">Copier le lien</button></div>
+      </div>
+    </div>
+  </article>`;
+}
+function pin() { return '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 22s7-6.1 7-12a7 7 0 1 0-14 0c0 5.9 7 12 7 12z"/><circle cx="12" cy="10" r="2.6"/></svg>'; }
+
+const main = document.getElementById('voyage');
+let html = '', side = 0;
+ERAS.forEach(er => {
+  const idx = E.map((e, i) => i).filter(i => eraOf(E[i]) === er.id);
+  if (!idx.length) return;
+  html += `<section class="era-block" data-era="${er.id}" id="epoque-${er.id}" style="--c:${er.c}">
+    <div class="wrap"><header class="era-head"><span class="num" aria-hidden="true">${String(er.id).padStart(2, '0')}</span>
+      <h2>${er.name}</h2><span class="span">${er.span} · ${idx.length} étape${idx.length > 1 ? 's' : ''}</span><p>${er.intro}</p></header>
+    <div class="line">${idx.map(i => eventHTML(E[i], i, (side++ % 2) ? 'r' : 'l')).join('')}</div></div></section>`;
+});
+main.innerHTML = html;
+
+/* Images qui ne chargent pas : visuel de remplacement */
+function guard(root) {
+  root.querySelectorAll('img[data-i]').forEach(img => {
+    const swap = () => { const box = img.parentElement; box.classList.remove('fit'); img.remove(); const cr = box.querySelector('.credit'); if (cr) cr.remove();
+      box.insertAdjacentHTML('afterbegin', `<div class="ph"><b>${esc(E[+img.dataset.i].g)}</b></div>`); };
+    if (img.complete && img.naturalWidth === 0 && img.src) swap(); else img.addEventListener('error', swap, { once: true });
+  });
+}
+guard(main);
+
+/* ---------- Chiffres clés ---------- */
+const contCount = {}; E.forEach(e => e.cont.forEach(c => contCount[c] = (contCount[c] || 0) + 1));
+document.getElementById('stats').innerHTML =
+  `<div class="stat static"><b>${E.length}</b><span>étapes</span></div>` +
+  ['Afrique', 'Asie', 'Europe', 'Amériques'].map(c => `<button class="stat" type="button" data-goct="${c}"><b>${contCount[c] || 0}</b><span>${c}</span></button>`).join('') +
+  `<div class="stat static"><b>9</b><span>femmes de science</span></div>`;
+
+/* ---------- Compteur d'ouverture ---------- */
+const counter = document.getElementById('counter');
+(function () {
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const from = -20000, to = 2026, dur = 2600;
+  if (reduce) { counter.textContent = yearTxt(to); return; }
+  let t0 = null;
+  const step = t => { if (!t0) t0 = t; const k = Math.min(1, (t - t0) / dur); const ease = 1 - Math.pow(1 - k, 4);
+    counter.textContent = yearTxt(Math.round(from + (to - from) * ease)); if (k < 1) requestAnimationFrame(step); };
+  setTimeout(() => requestAnimationFrame(step), 400);
+})();
+
+/* ---------- Score ---------- */
+const RANKS = [[0, 'Novice'], [3, 'Scribe'], [8, 'Savant'], [15, 'Génie'], [25, 'Médaille Fields'], [40, 'Légende des nombres']];
+let won = {};
+try { won = JSON.parse(localStorage.getItem('nombres-defis') || '{}') || {}; } catch (_) { won = {}; }
+const rankOf = n => RANKS.filter(r => n >= r[0]).pop()[1];
+function renderScore() {
+  const n = Object.keys(won).length;
+  document.getElementById('scoreN').textContent = n;
+  document.getElementById('scoreRank').textContent = '· ' + rankOf(n);
+  document.getElementById('finalRank').innerHTML = `<b>${rankOf(n)}</b><span>${n} défi${n > 1 ? 's' : ''} relevé${n > 1 ? 's' : ''} sur ${E.length}</span>`;
+  Object.keys(won).forEach(i => { const a = document.getElementById('ask' + i); if (a) a.innerHTML = '<span class="won">★ Défi relevé</span>'; });
+}
+renderScore();
+const toastEl = document.getElementById('toast'); let tt;
+function toast(msg) { toastEl.textContent = msg; toastEl.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => toastEl.classList.remove('show'), 2200); }
+
+main.addEventListener('click', ev => {
+  const b = ev.target.closest('button'); if (!b) return;
+  if (b.dataset.rev !== undefined) {
+    const r = document.getElementById('rep' + b.dataset.rev); r.hidden = !r.hidden; b.textContent = r.hidden ? 'Voir la réponse' : 'Cacher la réponse';
+  } else if (b.dataset.won !== undefined) {
+    const before = rankOf(Object.keys(won).length);
+    won[b.dataset.won] = 1; try { localStorage.setItem('nombres-defis', JSON.stringify(won)); } catch (_) {}
+    renderScore(); const after = rankOf(Object.keys(won).length);
+    toast(after !== before ? `Nouveau titre : ${after} !` : 'Bien joué ! ★ +1');
+  } else if (b.dataset.lost !== undefined) {
+    document.getElementById('ask' + b.dataset.lost).innerHTML = '<span class="ask">Pas grave : relis la réponse, et passe à la suite.</span>';
+  } else if (b.dataset.proj !== undefined) openProj(+b.dataset.proj);
+  else if (b.dataset.share !== undefined) {
+    const url = location.href.split('#')[0] + '#etape-' + (+b.dataset.share + 1);
+    if (navigator.clipboard) navigator.clipboard.writeText(url).then(() => toast('Lien copié'), () => toast(url)); else toast(url);
+  }
+});
+
+/* ---------- Apparition + année en direct ---------- */
+const evs = [...document.querySelectorAll('.ev')];
+const io = new IntersectionObserver(es => es.forEach(x => { if (x.isIntersecting) { x.target.classList.add('in'); io.unobserve(x.target); } }), { rootMargin: '0px 0px -8% 0px' });
+evs.forEach(el => io.observe(el));
+const nowYear = document.getElementById('nowYear'), nowEra = document.getElementById('nowEra');
+const spy = new IntersectionObserver(es => es.forEach(x => {
+  if (!x.isIntersecting) return;
+  const e = E[+x.target.dataset.i], er = ERA(eraOf(e));
+  nowYear.textContent = (e.v ? 'Vers ' : '') + yearTxt(e.y); nowEra.textContent = er.name;
+  document.documentElement.style.setProperty('--era', er.c);
+}), { rootMargin: '-45% 0px -50% 0px' });
+evs.forEach(el => spy.observe(el));
+const bar = document.getElementById('hudBar');
+function onScroll() {
+  const h = document.documentElement.scrollHeight - innerHeight;
+  bar.style.width = (h > 0 ? (scrollY / h) * 100 : 0) + '%';
+  if (scrollY < 200) { document.documentElement.style.setProperty('--era', ERAS[0].c); nowYear.textContent = yearTxt(-20000); nowEra.textContent = 'Préhistoire'; }
+}
+addEventListener('scroll', onScroll, { passive: true }); onScroll();
+
+/* ---------- Filtres ---------- */
+let lv = 'all', ct = 'all';
+const visible = () => E.map((e, i) => i).filter(i => (lv === 'all' || E[i].n.includes(+lv)) && (ct === 'all' || E[i].cont.includes(ct)));
+function applyFilters() {
+  const v = new Set(visible());
+  evs.forEach(el => { el.hidden = !v.has(+el.dataset.i); });
+  document.querySelectorAll('.era-block').forEach(b => { b.hidden = !b.querySelector('.ev:not([hidden])'); });
+  let s = 0; document.querySelectorAll('.line').forEach(l => l.querySelectorAll('.ev:not([hidden])').forEach(el => { el.classList.toggle('l', s % 2 === 0); el.classList.toggle('r', s % 2 === 1); s++; }));
+  document.getElementById('fcount').textContent = `${v.size} étape${v.size > 1 ? 's' : ''}`;
+  const n = (lv !== 'all') + (ct !== 'all');
+  document.getElementById('fBadge').textContent = n ? ` · ${n}` : '';
+}
+function setChip(attr, val) { document.querySelectorAll(`[data-${attr}]`).forEach(c => c.setAttribute('aria-pressed', String(c.dataset[attr] === val))); }
+document.querySelectorAll('[data-lv]').forEach(c => c.addEventListener('click', () => { lv = c.dataset.lv; setChip('lv', lv); applyFilters(); }));
+document.querySelectorAll('[data-ct]').forEach(c => c.addEventListener('click', () => { ct = c.dataset.ct; setChip('ct', ct); applyFilters(); }));
+const fT = document.getElementById('fToggle'), fP = document.getElementById('filters');
+fT.addEventListener('click', () => { fP.hidden = !fP.hidden; fT.setAttribute('aria-expanded', String(!fP.hidden)); });
+document.getElementById('stats').addEventListener('click', ev => {
+  const b = ev.target.closest('[data-goct]'); if (!b) return;
+  ct = b.dataset.goct; setChip('ct', ct); applyFilters(); fP.hidden = false; fT.setAttribute('aria-expanded', 'true');
+  toast(`${visible().length} étapes en ${ct === 'Amériques' ? 'Amérique' : ct === 'Asie' ? 'Asie' : ct === 'Afrique' ? 'Afrique' : 'Europe'}`);
+  document.getElementById('voyage').scrollIntoView({ behavior: 'smooth' });
+});
+applyFilters();
+
+/* ---------- Surprise ---------- */
+function surprise() {
+  const v = visible(); if (!v.length) return;
+  const i = v[Math.floor(Math.random() * v.length)], el = document.getElementById('etape-' + (i + 1));
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1800);
+}
+document.querySelectorAll('[data-surprise]').forEach(b => b.addEventListener('click', surprise));
+document.getElementById('backTop').addEventListener('click', ev => { ev.preventDefault(); scrollTo({ top: 0, behavior: 'smooth' }); });
+
+/* ---------- Projection ---------- */
+const proj = document.getElementById('proj'), stage = document.getElementById('pStage');
+let order = [], pos = 0;
+function renderProj() {
+  const i = order[pos], e = E[i], er = ERA(eraOf(e)), sub = yearSub(e);
+  proj.style.setProperty('--c', er.c);
+  stage.innerHTML = `${mediaHTML(e, i, 'p-media')}
+    <div class="p-text">
+      <div class="lv"><span class="t" style="--c:${er.c}">${esc(e.tag)}</span><span>${esc(e.place)}</span></div>
+      <div class="p-year">${e.v ? 'Vers ' : ''}${yearFull(e)}${sub ? `<small>${sub}</small>` : ''}</div>
+      <h3>${esc(e.title)}</h3>
+      ${e.p.map(p => `<p>${fr(p)}</p>`).join('')}
+      <div class="p-defi"><strong>Défi&nbsp;:</strong> ${fr(e.j)}<div class="rep" id="pRep" hidden><p><strong>Réponse&nbsp;:</strong> ${fr(e.r)}</p></div></div>
+    </div>`;
+  stage.querySelectorAll('.p-media .credit').forEach(c => c.remove());
+  stage.querySelectorAll('.p-media .ph.art').forEach(p => p.style.setProperty('--c', er.c));
+  guard(stage);
+  document.getElementById('pCount').textContent = `${er.name} · étape ${pos + 1} / ${order.length}`;
+  document.getElementById('pPrev').disabled = pos === 0;
+  document.getElementById('pNext').disabled = pos === order.length - 1;
+  document.getElementById('pShow').textContent = 'Afficher la réponse';
+  stage.scrollTop = 0;
+}
+function openProj(start) {
+  order = visible(); if (!order.length) return;
+  pos = Math.max(0, order.indexOf(start)); proj.hidden = false; document.body.style.overflow = 'hidden'; renderProj();
+  if (document.documentElement.requestFullscreen && !document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+}
+function closeProj() {
+  proj.hidden = true; document.body.style.overflow = '';
+  if (document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  const el = document.getElementById('etape-' + (order[pos] + 1)); if (el) el.scrollIntoView({ block: 'center' });
+}
+function toggleRep() { const r = document.getElementById('pRep'); r.hidden = !r.hidden; document.getElementById('pShow').textContent = r.hidden ? 'Afficher la réponse' : 'Masquer la réponse'; }
+document.querySelectorAll('[data-proj-start]').forEach(b => b.addEventListener('click', () => openProj(visible()[0])));
+document.getElementById('pClose').addEventListener('click', closeProj);
+document.getElementById('pPrev').addEventListener('click', () => { if (pos > 0) { pos--; renderProj(); } });
+document.getElementById('pNext').addEventListener('click', () => { if (pos < order.length - 1) { pos++; renderProj(); } });
+document.getElementById('pShow').addEventListener('click', toggleRep);
+addEventListener('keydown', ev => {
+  if (proj.hidden) return;
+  if (ev.key === 'ArrowRight' && pos < order.length - 1) { pos++; renderProj(); }
+  else if (ev.key === 'ArrowLeft' && pos > 0) { pos--; renderProj(); }
+  else if (ev.key === 'Escape') closeProj();
+  else if (ev.key === ' ') { ev.preventDefault(); toggleRep(); }
+});
+
+/* Lien direct : …/#etape-12 */
+if (/^#etape-\d+$/.test(location.hash)) { const el = document.querySelector(location.hash); if (el) { el.classList.add('in'); setTimeout(() => el.scrollIntoView({ block: 'center' }), 50); } }
+</script>
+</body>
+</html>
